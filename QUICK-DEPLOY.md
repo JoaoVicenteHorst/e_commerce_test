@@ -66,35 +66,22 @@ git push -u origin main
 
 ### 6️⃣ Seed Production Database (1 minute)
 
-After deployment completes, seed your production database:
+After deployment completes, seed your production database **from your local machine**:
 
-**Option A: Using API endpoint (easiest)**
-
+Make sure `.env.local` has your production database URL:
 ```bash
-curl -X POST https://YOUR-APP.vercel.app/api/admin/seed-prod \
-  -H "Content-Type: application/json" \
-  -d "{\"secret\": \"YOUR-JWT-SECRET\"}"
+DATABASE_URL="your-render-postgres-url"
+JWT_SECRET="your-jwt-secret"
 ```
 
-You should see: `{"success": true, "message": "Production database seeded successfully!"}`
-
-**Option B: Using Render dashboard**
-1. Go to Render dashboard
-2. Click your database
-3. Click "Connect" → "External Connection"
-4. Use the connection string with your local seed script
-
-### 7️⃣ Security - Delete Seed Route (Important!)
-
-After seeding production database, DELETE the seed route:
-
+Then run:
 ```bash
-git rm app/api/admin/seed-prod/route.ts
-git commit -m "Remove production seed route"
-git push
+npm run seed:production
 ```
 
-### 8️⃣ Test Your Live App! 🎉
+You should see: `✅ Created 3 users` and `✅ Created 40 products`
+
+### 7️⃣ Test Your Live App! 🎉
 
 1. Visit your Vercel URL: `https://YOUR-APP.vercel.app`
 2. Login with:
@@ -119,15 +106,8 @@ git commit -m "Ready for deployment"
 git remote add origin YOUR-GITHUB-REPO-URL
 git push -u origin main
 
-# Seed production (after Vercel deployment)
-curl -X POST https://YOUR-APP.vercel.app/api/admin/seed-prod \
-  -H "Content-Type: application/json" \
-  -d "{\"secret\": \"YOUR-JWT-SECRET\"}"
-
-# Clean up
-git rm app/api/admin/seed-prod/route.ts
-git commit -m "Remove production seed route"
-git push
+# Seed production (after Vercel deployment - run locally)
+npm run seed:production
 ```
 
 ---
