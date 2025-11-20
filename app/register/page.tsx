@@ -46,7 +46,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-500 to-blue-600">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-500 to-blue-600 relative">
+      <Link
+        href="/"
+        className="absolute top-8 left-8 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition backdrop-blur-sm flex items-center gap-2"
+      >
+        <span>←</span>
+        Back to Home
+      </Link>
       <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
         <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
           Create Account
