@@ -1,25 +1,30 @@
+/**
+ * Force Reseed Script - Deletes all products and users, then reseeds
+ * Use this when you want to completely refresh your database
+ * 
+ * Usage: npm run prisma:reseed
+ */
+
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Check if database is already seeded
-  const existingProductCount = await prisma.product.count();
-  if (existingProductCount > 0) {
-    console.log('⚠️  Database already has products. Skipping seed to avoid duplicates.');
-    console.log(`   Current product count: ${existingProductCount}`);
-    console.log('   To reseed, delete products first or drop the database.\n');
-    return;
-  }
+  console.log('🗑️  Deleting all existing data...\n');
+
+  // Delete all products and users
+  await prisma.product.deleteMany({});
+  await prisma.user.deleteMany({});
+
+  console.log('✅ All data deleted.\n');
+  console.log('🌱 Starting fresh seed...\n');
 
   // Create users
   const hashedPassword = await bcrypt.hash('password123', 10);
 
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
-    update: {},
-    create: {
+  const admin = await prisma.user.create({
+    data: {
       email: 'admin@example.com',
       password: hashedPassword,
       name: 'Admin User',
@@ -27,10 +32,8 @@ async function main() {
     },
   });
 
-  const manager = await prisma.user.upsert({
-    where: { email: 'manager@example.com' },
-    update: {},
-    create: {
+  const manager = await prisma.user.create({
+    data: {
       email: 'manager@example.com',
       password: hashedPassword,
       name: 'Manager User',
@@ -38,10 +41,8 @@ async function main() {
     },
   });
 
-  const user = await prisma.user.upsert({
-    where: { email: 'user@example.com' },
-    update: {},
-    create: {
+  const user = await prisma.user.create({
+    data: {
       email: 'user@example.com',
       password: hashedPassword,
       name: 'Regular User',
@@ -49,10 +50,11 @@ async function main() {
     },
   });
 
-  console.log('Created users:', { admin, manager, user });
+  console.log('✅ Created 3 users (Admin, Manager, User)\n');
 
   // Create 40 products (15 with 15% discount strategically placed)
-  // Organized by category with realistic products and matching images
+  console.log('📦 Creating products...\n');
+  
   const productData = [
     // Electronics (7 products) - 3 with discount
     { name: 'Wireless Headphones', category: 'Electronics', price: 79.99, description: 'Premium noise-canceling wireless headphones with 30-hour battery life.', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop', discount: true },
@@ -107,10 +109,9 @@ async function main() {
     { name: 'Action Figure Set', category: 'Toys', price: 29.99, description: 'Collectible action figures with accessories, set of 4.', image: 'https://images.unsplash.com/photo-1581716867443-8946854c56d7?w=400&h=300&fit=crop', discount: false },
   ];
 
-  const products = [];
   for (let i = 0; i < productData.length; i++) {
     const item = productData[i];
-    const product = await prisma.product.create({
+    await prisma.product.create({
       data: {
         name: item.name,
         description: item.description,
@@ -121,18 +122,19 @@ async function main() {
         stock: Math.floor(Math.random() * 100) + 10,
       },
     });
-    products.push(product);
   }
 
-  console.log(`Created ${products.length} products`);
+  console.log(`✅ Created 40 products (15 with 15% discount)\n`);
+  console.log('🎉 Database reseeded successfully!\n');
 }
 
 main()
   .then(async () => {
     await prisma.$disconnect();
+    process.exit(0);
   })
   .catch(async (e) => {
-    console.error(e);
+    console.error('❌ Error reseeding database:', e);
     await prisma.$disconnect();
     process.exit(1);
   });
