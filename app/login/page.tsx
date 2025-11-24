@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useCart } from '@/context/CartContext';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { loadUserCart } = useCart();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -34,6 +36,9 @@ export default function LoginPage() {
       // Store token
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Load user's saved cart
+      loadUserCart(data.user.id);
 
       // Redirect to home
       router.push('/');

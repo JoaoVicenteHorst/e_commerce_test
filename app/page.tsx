@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useCart } from '@/context/CartContext';
 
 interface User {
   id: string;
@@ -24,21 +25,27 @@ interface Product {
 
 export default function HomePage() {
   const router = useRouter();
+  const { addToCart, getCartCount, loadUserCart } = useCart();
   const [user, setUser] = useState<User | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState('All');
+  const [addedToCart, setAddedToCart] = useState<string | null>(null);
 
   useEffect(() => {
     // Get user from localStorage
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      // Load user's specific cart
+      loadUserCart(parsedUser.id);
     }
 
     // Fetch products
     fetchProducts();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
 
   const fetchProducts = async () => {
     try {
@@ -66,6 +73,22 @@ export default function HomePage() {
 
   const discountedProducts = products.filter(p => p.discount > 0);
 
+  const handleAddToCart = (product: Product) => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      discount: product.discount,
+      image: product.image,
+    });
+    setAddedToCart(product.id);
+    setTimeout(() => setAddedToCart(null), 2000);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -82,6 +105,20 @@ export default function HomePage() {
             </div>
             
             <div className="flex gap-4 items-center">
+              {user && (
+                <Link
+                  href="/cart"
+                  className="relative px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition flex items-center gap-2"
+                >
+                  <span>🛒</span>
+                  Cart
+                  {getCartCount() > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                      {getCartCount()}
+                    </span>
+                  )}
+                </Link>
+              )}
               {user ? (
                 <>
                   {(user.role === 'ADMIN' || user.role === 'MANAGER') && (
@@ -206,9 +243,25 @@ export default function HomePage() {
                         Stock: {product.stock}
                       </span>
                     </div>
-                    <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-                      Add to Cart
-                    </button>
+                    {user ? (
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        className={`mt-4 w-full py-2 rounded-lg transition font-medium ${
+                          addedToCart === product.id
+                            ? 'bg-green-600 text-white'
+                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                        }`}
+                      >
+                        {addedToCart === product.id ? '✓ Added!' : 'Add to Cart'}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => router.push('/login')}
+                        className="mt-4 w-full py-2 rounded-lg transition font-medium bg-gray-600 text-white hover:bg-gray-700"
+                      >
+                        Login to Add to Cart
+                      </button>
+                    )}
                   </div>
                 </div>
               );
