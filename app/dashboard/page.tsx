@@ -9,6 +9,8 @@ interface User {
   email: string;
   name: string;
   role: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface Product {
@@ -52,6 +54,8 @@ export default function DashboardPage() {
     password: '',
     role: 'USER',
   });
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [userFilterRole, setUserFilterRole] = useState<string>('ALL');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -457,78 +461,170 @@ export default function DashboardPage() {
         {/* Users Tab */}
         {activeTab === 'users' && (
           <div>
+            {/* User Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600 mb-2">Total Users</h3>
+                <p className="text-3xl font-bold text-gray-800">{users.length}</p>
+              </div>
+              <div className="bg-purple-50 p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-purple-600 mb-2">Admins</h3>
+                <p className="text-3xl font-bold text-purple-800">
+                  {users.filter(u => u.role === 'ADMIN').length}
+                </p>
+              </div>
+              <div className="bg-blue-50 p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-blue-600 mb-2">Managers</h3>
+                <p className="text-3xl font-bold text-blue-800">
+                  {users.filter(u => u.role === 'MANAGER').length}
+                </p>
+              </div>
+              <div className="bg-gray-50 p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600 mb-2">Users</h3>
+                <p className="text-3xl font-bold text-gray-800">
+                  {users.filter(u => u.role === 'USER').length}
+                </p>
+              </div>
+            </div>
+
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">Manage Users</h2>
+              <h2 className="text-2xl font-bold text-gray-800">Manage User Accounts</h2>
               <button
                 onClick={() => {
                   setEditingUser(null);
                   setUserForm({ name: '', email: '', password: '', role: 'USER' });
                   setShowUserForm(!showUserForm);
                 }}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2"
               >
-                {showUserForm ? 'Cancel' : 'Add User'}
+                <span>+</span>
+                {showUserForm ? 'Cancel' : 'Add New User'}
               </button>
             </div>
 
+            {/* Search and Filter */}
+            <div className="bg-white p-4 rounded-lg shadow-md mb-6 flex gap-4">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="Search by name or email..."
+                  value={userSearchTerm}
+                  onChange={(e) => setUserSearchTerm(e.target.value)}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <select
+                value={userFilterRole}
+                onChange={(e) => setUserFilterRole(e.target.value)}
+                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="ALL">All Roles</option>
+                <option value="ADMIN">Admin</option>
+                <option value="MANAGER">Manager</option>
+                <option value="USER">User</option>
+              </select>
+            </div>
+
             {showUserForm && (
-              <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-                <h3 className="text-xl font-bold mb-4">
-                  {editingUser ? 'Edit User' : 'Add New User'}
+              <div className="bg-white p-6 rounded-lg shadow-md mb-6 border-2 border-blue-200">
+                <h3 className="text-xl font-bold mb-4 text-gray-800">
+                  {editingUser ? '✏️ Edit User Account' : '➕ Create New User Account'}
                 </h3>
-                <form onSubmit={handleUserSubmit} className="grid grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    value={userForm.name}
-                    onChange={(e) =>
-                      setUserForm({ ...userForm, name: e.target.value })
-                    }
-                    required
-                    className="px-4 py-2 border rounded-lg"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    value={userForm.email}
-                    onChange={(e) =>
-                      setUserForm({ ...userForm, email: e.target.value })
-                    }
-                    required
-                    className="px-4 py-2 border rounded-lg"
-                  />
-                  <input
-                    type="password"
-                    placeholder={editingUser ? 'New Password (optional)' : 'Password'}
-                    value={userForm.password}
-                    onChange={(e) =>
-                      setUserForm({ ...userForm, password: e.target.value })
-                    }
-                    required={!editingUser}
-                    className="px-4 py-2 border rounded-lg"
-                  />
-                  <select
-                    value={userForm.role}
-                    onChange={(e) =>
-                      setUserForm({ ...userForm, role: e.target.value })
-                    }
-                    disabled={user?.role === 'MANAGER'}
-                    className="px-4 py-2 border rounded-lg"
-                  >
-                    <option value="USER">User</option>
-                    {user?.role === 'ADMIN' && (
-                      <>
-                        <option value="MANAGER">Manager</option>
-                        <option value="ADMIN">Admin</option>
-                      </>
-                    )}
-                  </select>
-                  <button
-                    type="submit"
-                    className="col-span-2 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-                  >
-                    {editingUser ? 'Update User' : 'Create User'}
-                  </button>
+                <form onSubmit={handleUserSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="John Doe"
+                        value={userForm.name}
+                        onChange={(e) =>
+                          setUserForm({ ...userForm, name: e.target.value })
+                        }
+                        required
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email Address *
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="john@example.com"
+                        value={userForm.email}
+                        onChange={(e) =>
+                          setUserForm({ ...userForm, email: e.target.value })
+                        }
+                        required
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {editingUser ? 'New Password (leave empty to keep current)' : 'Password *'}
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="••••••••"
+                        value={userForm.password}
+                        onChange={(e) =>
+                          setUserForm({ ...userForm, password: e.target.value })
+                        }
+                        required={!editingUser}
+                        minLength={6}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        User Role *
+                      </label>
+                      <select
+                        value={userForm.role}
+                        onChange={(e) =>
+                          setUserForm({ ...userForm, role: e.target.value })
+                        }
+                        disabled={user?.role === 'MANAGER'}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="USER">👤 User (Basic Access)</option>
+                        {user?.role === 'ADMIN' && (
+                          <>
+                            <option value="MANAGER">👔 Manager (Manage Users & Products)</option>
+                            <option value="ADMIN">👑 Admin (Full System Access)</option>
+                          </>
+                        )}
+                      </select>
+                      {user?.role === 'MANAGER' && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          Managers can only create USER accounts
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium"
+                    >
+                      {editingUser ? '✓ Update User' : '+ Create User'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowUserForm(false);
+                        setEditingUser(null);
+                        setUserForm({ name: '', email: '', password: '', role: 'USER' });
+                      }}
+                      className="px-6 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition font-medium"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </form>
               </div>
             )}
@@ -540,52 +636,120 @@ export default function DashboardPage() {
                     <th className="px-4 py-3 text-left">Name</th>
                     <th className="px-4 py-3 text-left">Email</th>
                     <th className="px-4 py-3 text-left">Role</th>
+                    <th className="px-4 py-3 text-left">Created Date</th>
                     <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((listUser) => (
-                    <tr key={listUser.id} className="border-t hover:bg-gray-50">
-                      <td className="px-4 py-3">{listUser.name}</td>
-                      <td className="px-4 py-3">{listUser.email}</td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`px-2 py-1 rounded text-sm ${
-                            listUser.role === 'ADMIN'
-                              ? 'bg-purple-100 text-purple-800'
-                              : listUser.role === 'MANAGER'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
-                          {listUser.role}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        {(user?.role === 'ADMIN' ||
-                          (user?.role === 'MANAGER' && listUser.role === 'USER')) && (
-                          <>
-                            <button
-                              onClick={() => handleEditUser(listUser)}
-                              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 mr-2"
-                            >
-                              Edit
-                            </button>
-                            {user?.role === 'ADMIN' && (
-                              <button
-                                onClick={() => handleDeleteUser(listUser.id)}
-                                className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                              >
-                                Delete
-                              </button>
+                  {users
+                    .filter((listUser) => {
+                      // Search filter
+                      const matchesSearch = userSearchTerm === '' ||
+                        listUser.name.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+                        listUser.email.toLowerCase().includes(userSearchTerm.toLowerCase());
+                      
+                      // Role filter
+                      const matchesRole = userFilterRole === 'ALL' || listUser.role === userFilterRole;
+                      
+                      return matchesSearch && matchesRole;
+                    })
+                    .map((listUser) => (
+                      <tr key={listUser.id} className="border-t hover:bg-gray-50">
+                        <td className="px-4 py-3">
+                          <div>
+                            <p className="font-medium text-gray-800">{listUser.name}</p>
+                            {listUser.id === user?.id && (
+                              <span className="text-xs text-green-600 font-medium">You</span>
                             )}
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">{listUser.email}</td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              listUser.role === 'ADMIN'
+                                ? 'bg-purple-100 text-purple-800'
+                                : listUser.role === 'MANAGER'
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}
+                          >
+                            {listUser.role}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-gray-600 text-sm">
+                          {listUser.createdAt 
+                            ? new Date(listUser.createdAt).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              })
+                            : '-'
+                          }
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          {(user?.role === 'ADMIN' ||
+                            (user?.role === 'MANAGER' && listUser.role === 'USER')) && (
+                            <>
+                              <button
+                                onClick={() => handleEditUser(listUser)}
+                                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 mr-2 text-sm"
+                                title="Edit user"
+                              >
+                                ✏️ Edit
+                              </button>
+                              {user?.role === 'ADMIN' && listUser.id !== user.id && (
+                                <button
+                                  onClick={() => handleDeleteUser(listUser.id)}
+                                  className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+                                  title="Delete user"
+                                >
+                                  🗑️ Delete
+                                </button>
+                              )}
+                            </>
+                          )}
+                          {user?.role === 'ADMIN' && listUser.id === user.id && (
+                            <span className="text-sm text-gray-500 italic">Current account</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
+              
+              {users.filter((listUser) => {
+                const matchesSearch = userSearchTerm === '' ||
+                  listUser.name.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+                  listUser.email.toLowerCase().includes(userSearchTerm.toLowerCase());
+                const matchesRole = userFilterRole === 'ALL' || listUser.role === userFilterRole;
+                return matchesSearch && matchesRole;
+              }).length === 0 && (
+                <div className="p-8 text-center text-gray-500">
+                  <p className="text-lg">No users found matching your criteria</p>
+                  <p className="text-sm mt-2">Try adjusting your search or filters</p>
+                </div>
+              )}
+            </div>
+
+            {/* Permissions Info */}
+            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-semibold text-blue-900 mb-2">👤 User Management Permissions</h3>
+              <div className="text-sm text-blue-800 space-y-1">
+                {user?.role === 'ADMIN' ? (
+                  <>
+                    <p>✅ <strong>Admins</strong> can create, edit, and delete ALL user types</p>
+                    <p>✅ Can promote users to Manager or Admin roles</p>
+                    <p>✅ Can delete any user except your own account</p>
+                  </>
+                ) : (
+                  <>
+                    <p>✅ <strong>Managers</strong> can create and edit USER accounts only</p>
+                    <p>❌ Cannot manage Admin or Manager accounts</p>
+                    <p>❌ Cannot delete any accounts</p>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         )}
