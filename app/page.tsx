@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface User {
   id: string;
@@ -90,21 +91,22 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white shadow-md">
+      <header className="bg-white dark:bg-gray-800 shadow-md">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">E-Commerce Store</h1>
+              <h1 className="text-2xl font-bold text-gray-800 dark:text-white">E-Commerce Store</h1>
               {user && (
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Welcome, {user.name} ({user.role})
                 </p>
               )}
             </div>
             
             <div className="flex gap-4 items-center">
+              <ThemeToggle />
               {user && (
                 <Link
                   href="/cart"
@@ -167,7 +169,7 @@ export default function HomePage() {
       <main className="container mx-auto px-4 py-8">
         {/* Special Offers Banner */}
         {discountedProducts.length > 0 && (
-          <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-lg p-6 mb-8 text-white">
+          <div className="bg-gradient-to-r from-red-500 to-pink-500 dark:from-red-600 dark:to-pink-600 rounded-lg p-6 mb-8 text-white">
             <h2 className="text-3xl font-bold mb-2">Special Offers! 🎉</h2>
             <p className="text-lg">{discountedProducts.length} products with 15% OFF</p>
           </div>
@@ -182,7 +184,7 @@ export default function HomePage() {
               className={`px-4 py-2 rounded-lg transition ${
                 filterCategory === category
                   ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
             >
               {category}
@@ -194,7 +196,7 @@ export default function HomePage() {
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-            <p className="mt-4 text-gray-600">Loading products...</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading products...</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -203,7 +205,7 @@ export default function HomePage() {
               return (
                 <div
                   key={product.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition"
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition"
                 >
                   {product.discount > 0 && (
                     <div className="absolute mt-2 ml-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
@@ -216,10 +218,10 @@ export default function HomePage() {
                     className="w-full h-48 object-cover"
                   />
                   <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
                       {product.name}
                     </h3>
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
                       {product.description}
                     </p>
                     <div className="flex items-center justify-between">
@@ -239,7 +241,7 @@ export default function HomePage() {
                           </span>
                         )}
                       </div>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
                         Stock: {product.stock}
                       </span>
                     </div>
@@ -271,7 +273,7 @@ export default function HomePage() {
 
         {filteredProducts.length === 0 && !loading && (
           <div className="text-center py-12">
-            <p className="text-gray-600 text-lg">No products found in this category.</p>
+            <p className="text-gray-600 dark:text-gray-400 text-lg">No products found in this category.</p>
           </div>
         )}
       </main>

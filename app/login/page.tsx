@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -50,28 +51,33 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 relative">
-      <Link
-        href="/"
-        className="absolute top-8 left-8 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition backdrop-blur-sm flex items-center gap-2"
-      >
-        <span>←</span>
-        Back to Home
-      </Link>
-      <div className="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-900 dark:to-purple-900 relative">
+      <div className="absolute top-8 left-8 flex gap-4">
+        <Link
+          href="/"
+          className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition backdrop-blur-sm flex items-center gap-2"
+        >
+          <span>←</span>
+          Back to Home
+        </Link>
+        <div className="bg-white/20 rounded-lg backdrop-blur-sm">
+          <ThemeToggle />
+        </div>
+      </div>
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md">
+        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800 dark:text-white">
           Welcome Back
         </h1>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-100 dark:bg-red-900/50 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Email
             </label>
             <input
@@ -80,13 +86,13 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="your@email.com"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Password
             </label>
             <input
@@ -95,7 +101,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="••••••••"
             />
           </div>
@@ -110,17 +116,17 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Don't have an account?{' '}
-            <Link href="/register" className="text-blue-600 hover:text-blue-700 font-medium">
+            <Link href="/register" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
               Register here
             </Link>
           </p>
         </div>
 
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-600 text-center mb-2">Demo Credentials:</p>
-          <div className="text-xs space-y-1 text-gray-500">
+        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-sm text-gray-600 dark:text-gray-400 text-center mb-2">Demo Credentials:</p>
+          <div className="text-xs space-y-1 text-gray-500 dark:text-gray-400">
             <p><strong>Admin:</strong> admin@example.com / password123</p>
             <p><strong>Manager:</strong> manager@example.com / password123</p>
             <p><strong>User:</strong> user@example.com / password123</p>
